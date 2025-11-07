@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nodejs-monolith-db
+    restart: always
+    environment:
+      POSTGRES_DB: monolith_db
+      POSTGRES_USER: monolith_user
+      POSTGRES_PASSWORD: monolith_pass
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - monolith-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nodejs-monolith-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@monolith.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - '8080:80'
+    depends_on:
+      - postgres
+    networks:
+      - monolith-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: nodejs-monolith-redis
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - monolith-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  monolith-network:
+    driver: bridge
