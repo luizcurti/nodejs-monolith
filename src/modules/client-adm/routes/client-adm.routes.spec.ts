@@ -3,6 +3,7 @@ import request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { ClientModel } from '../repository/client.model';
 import clientAdmRouter from './client-adm.routes';
+import ClientAdmFacadeFactory from '../factory/client-adm.facade.factory';
 
 // Isolated Express app — no dependency on main.ts
 const app = express();
@@ -34,6 +35,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await sequelize.close();
+  jest.restoreAllMocks();
 });
 
 describe('POST /api/clients', () => {
@@ -223,5 +225,65 @@ describe('GET /api/clients/:id', () => {
       expect(res.body).toHaveProperty('createdAt');
       expect(res.body).toHaveProperty('updatedAt');
     });
+  });
+});
+
+describe('error handling — POST /api/clients', () => {
+  it('returns 500 with error message when facade throws an Error', async () => {
+    jest.spyOn(ClientAdmFacadeFactory, 'create').mockReturnValue({
+      add: jest.fn().mockRejectedValue(new Error('DB connection failed')),
+      find: jest.fn(),
+    } as any);
+
+    const res = await request(app).post('/api/clients').send({
+      name: 'Test',
+      email: 'test@example.com',
+      address: 'Street 1',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('DB connection failed');
+  });
+
+  it('returns 500 with generic message when facade throws a non-Error value', async () => {
+    jest.spyOn(ClientAdmFacadeFactory, 'create').mockReturnValue({
+      add: jest.fn().mockRejectedValue('unexpected string error'),
+      find: jest.fn(),
+    } as any);
+
+    const res = await request(app).post('/api/clients').send({
+      name: 'Test',
+      email: 'test@example.com',
+      address: 'Street 1',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('Internal server error');
+  });
+});
+
+describe('error handling — GET /api/clients/:id', () => {
+  it('returns 500 with error message when facade throws a non-not-found Error', async () => {
+    jest.spyOn(ClientAdmFacadeFactory, 'create').mockReturnValue({
+      add: jest.fn(),
+      find: jest.fn().mockRejectedValue(new Error('DB timeout')),
+    } as any);
+
+    const res = await request(app).get('/api/clients/any-id');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('DB timeout');
+  });
+
+  it('returns 500 with generic message when facade throws a non-Error value', async () => {
+    jest.spyOn(ClientAdmFacadeFactory, 'create').mockReturnValue({
+      add: jest.fn(),
+      find: jest.fn().mockRejectedValue({ code: 503 }),
+    } as any);
+
+    const res = await request(app).get('/api/clients/any-id');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('Internal server error');
   });
 });

@@ -3,6 +3,7 @@ import request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import TransactionModel from '../repository/transaction.model';
 import paymentRouter from './payment.routes';
+import PaymentFacadeFactory from '../factory/payment.facade.factory';
 
 // Isolated Express app — no dependency on main.ts
 const app = express();
@@ -32,6 +33,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await sequelize.close();
+  jest.restoreAllMocks();
 });
 
 describe('POST /api/payments', () => {
@@ -225,5 +227,33 @@ describe('POST /api/payments', () => {
       const count = await TransactionModel.count();
       expect(count).toBe(2);
     });
+  });
+});
+
+describe('error handling — POST /api/payments', () => {
+  it('returns 500 with error message when facade throws an Error', async () => {
+    jest.spyOn(PaymentFacadeFactory, 'create').mockReturnValue({
+      process: jest.fn().mockRejectedValue(new Error('DB unavailable')),
+    } as any);
+
+    const res = await request(app)
+      .post('/api/payments')
+      .send({ orderId: 'order-err', amount: 150 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('DB unavailable');
+  });
+
+  it('returns 500 with generic message when facade throws a non-Error value', async () => {
+    jest.spyOn(PaymentFacadeFactory, 'create').mockReturnValue({
+      process: jest.fn().mockRejectedValue('unexpected string error'),
+    } as any);
+
+    const res = await request(app)
+      .post('/api/payments')
+      .send({ orderId: 'order-err', amount: 150 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('Internal server error');
   });
 });

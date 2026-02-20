@@ -3,6 +3,7 @@ import request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { ProductModel } from '../repository/product.model';
 import productAdmRouter from './product-adm.routes';
+import ProductAdmFacadeFactory from '../factory/facade.factory';
 
 // Isolated Express app — no dependency on main.ts
 const app = express();
@@ -34,6 +35,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await sequelize.close();
+  jest.restoreAllMocks();
 });
 
 describe('POST /api/products', () => {
@@ -312,5 +314,67 @@ describe('GET /api/products/:id/stock', () => {
       expect(res.body.productId).toBe('e2e-prod-001');
       expect(res.body.stock).toBe(15);
     });
+  });
+});
+
+describe('error handling — POST /api/products', () => {
+  it('returns 500 with error message when facade throws an Error', async () => {
+    jest.spyOn(ProductAdmFacadeFactory, 'create').mockReturnValue({
+      addProduct: jest.fn().mockRejectedValue(new Error('DB write failed')),
+      checkStock: jest.fn(),
+    } as any);
+
+    const res = await request(app).post('/api/products').send({
+      name: 'Item',
+      description: 'Desc',
+      purchasePrice: 10,
+      stock: 5,
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('DB write failed');
+  });
+
+  it('returns 500 with generic message when facade throws a non-Error value', async () => {
+    jest.spyOn(ProductAdmFacadeFactory, 'create').mockReturnValue({
+      addProduct: jest.fn().mockRejectedValue('unexpected error'),
+      checkStock: jest.fn(),
+    } as any);
+
+    const res = await request(app).post('/api/products').send({
+      name: 'Item',
+      description: 'Desc',
+      purchasePrice: 10,
+      stock: 5,
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('Internal server error');
+  });
+});
+
+describe('error handling — GET /api/products/:id/stock', () => {
+  it('returns 500 with error message when facade throws a non-not-found Error', async () => {
+    jest.spyOn(ProductAdmFacadeFactory, 'create').mockReturnValue({
+      addProduct: jest.fn(),
+      checkStock: jest.fn().mockRejectedValue(new Error('DB read error')),
+    } as any);
+
+    const res = await request(app).get('/api/products/any-id/stock');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('DB read error');
+  });
+
+  it('returns 500 with generic message when facade throws a non-Error value', async () => {
+    jest.spyOn(ProductAdmFacadeFactory, 'create').mockReturnValue({
+      addProduct: jest.fn(),
+      checkStock: jest.fn().mockRejectedValue(42),
+    } as any);
+
+    const res = await request(app).get('/api/products/any-id/stock');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('Internal server error');
   });
 });

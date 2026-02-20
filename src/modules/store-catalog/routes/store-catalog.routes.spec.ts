@@ -3,6 +3,7 @@ import request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import ProductModel from '../repository/product.model';
 import storeCatalogRouter from './store-catalog.routes';
+import StoreCatalogFacadeFactory from '../factory/facade.factory';
 
 // Isolated Express app — no dependency on main.ts
 const app = express();
@@ -51,6 +52,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await sequelize.close();
+  jest.restoreAllMocks();
 });
 
 describe('GET /api/catalog/products', () => {
@@ -164,5 +166,57 @@ describe('GET /api/catalog/products/:id', () => {
       expect(res.status).toBe(404);
       expect(res.body.error).toMatch(/not found/i);
     });
+  });
+});
+
+describe('error handling — GET /api/catalog/products', () => {
+  it('returns 500 with error message when facade throws an Error', async () => {
+    jest.spyOn(StoreCatalogFacadeFactory, 'create').mockReturnValue({
+      findAll: jest.fn().mockRejectedValue(new Error('DB timeout')),
+      find: jest.fn(),
+    } as any);
+
+    const res = await request(app).get('/api/catalog/products');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('DB timeout');
+  });
+
+  it('returns 500 with generic message when facade throws a non-Error value', async () => {
+    jest.spyOn(StoreCatalogFacadeFactory, 'create').mockReturnValue({
+      findAll: jest.fn().mockRejectedValue('unexpected error'),
+      find: jest.fn(),
+    } as any);
+
+    const res = await request(app).get('/api/catalog/products');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('Internal server error');
+  });
+});
+
+describe('error handling — GET /api/catalog/products/:id', () => {
+  it('returns 500 with error message when facade throws a non-not-found Error', async () => {
+    jest.spyOn(StoreCatalogFacadeFactory, 'create').mockReturnValue({
+      findAll: jest.fn(),
+      find: jest.fn().mockRejectedValue(new Error('DB read error')),
+    } as any);
+
+    const res = await request(app).get('/api/catalog/products/any-id');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('DB read error');
+  });
+
+  it('returns 500 with generic message when facade throws a non-Error value', async () => {
+    jest.spyOn(StoreCatalogFacadeFactory, 'create').mockReturnValue({
+      findAll: jest.fn(),
+      find: jest.fn().mockRejectedValue(null),
+    } as any);
+
+    const res = await request(app).get('/api/catalog/products/any-id');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe('Internal server error');
   });
 });
