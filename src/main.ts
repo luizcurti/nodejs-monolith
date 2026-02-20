@@ -3,6 +3,10 @@ import express from 'express';
 import { config } from 'dotenv';
 import sequelize from './infrastructure/database/sequelize.config';
 import logger from './infrastructure/logging/logger';
+import clientAdmRouter from './modules/client-adm/routes/client-adm.routes';
+import productAdmRouter from './modules/product-adm/routes/product-adm.routes';
+import storeCatalogRouter from './modules/store-catalog/routes/store-catalog.routes';
+import paymentRouter from './modules/payment/routes/payment.routes';
 
 // Load environment variables
 config();
@@ -23,6 +27,12 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development',
   });
 });
+
+// Module routes
+app.use('/api/clients', clientAdmRouter);
+app.use('/api/products', productAdmRouter);
+app.use('/api/catalog/products', storeCatalogRouter);
+app.use('/api/payments', paymentRouter);
 
 // Database connection
 const connectDatabase = async (): Promise<void> => {

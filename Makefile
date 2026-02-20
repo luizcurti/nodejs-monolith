@@ -48,16 +48,16 @@ format-check: ## Check code formatting
 
 # Docker operations
 docker-up: ## Start all Docker services (PostgreSQL, Redis, PgAdmin)
-	docker-compose up -d
+	docker compose up -d
 
 docker-down: ## Stop all Docker services
-	docker-compose down
+	docker compose down
 
 docker-logs: ## View Docker container logs
-	docker-compose logs -f
+	docker compose logs -f
 
 docker-restart: ## Restart Docker services
-	docker-compose restart
+	docker compose restart
 
 # Database operations
 db-migrate: ## Run database migrations
@@ -92,7 +92,7 @@ ci-test: ## Run CI pipeline locally
 	npm run test:coverage
 
 ci-setup: ## Setup CI environment
-	docker-compose up -d postgres redis
+	docker compose up -d postgres redis
 	sleep 5
 	@echo "✅ CI environment ready!"
 

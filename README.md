@@ -85,6 +85,8 @@ npm run docker:up
 npm run docker:logs
 ```
 
+> **Note:** All scripts use `docker compose` (CLI v2). Requires Docker Desktop ≥ 4.x — the legacy `docker-compose` (v1) binary is not supported.
+
 ### 3. Development Commands
 
 ```bash
@@ -145,17 +147,109 @@ PgAdmin: admin@monolith.com / admin123
 
 ## 📊 API Endpoints
 
+All request bodies are validated by **Joi**. Validation errors return `400` with `{ error: "<details>" }`.
+
 ### Health Check
 
 ```
-GET /health - Application health and status
+GET /health
 ```
 
-### Module Endpoints (Coming Soon)
+Response `200`: `{ status, timestamp, uptime, environment }`
 
-- `GET|POST /api/clients` - Client management
-- `GET|POST /api/products` - Product catalog
-- `POST /api/payments` - Payment processing
+---
+
+### Client Administration
+
+#### `POST /api/clients`
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| `id` | string | no | |
+| `name` | string | **yes** | |
+| `email` | string | **yes** | valid e-mail format |
+| `address` | string | **yes** | |
+
+| Status | Body |
+|--------|------|
+| `201` | `{ message: 'Client created successfully' }` |
+| `400` | `{ error: "<validation details>" }` |
+| `500` | `{ error: "<message>" }` |
+
+#### `GET /api/clients/:id`
+
+| Status | Body |
+|--------|------|
+| `200` | `{ id, name, email, address, createdAt, updatedAt }` |
+| `404` | `{ error: "Client not found" }` |
+| `500` | `{ error: "<message>" }` |
+
+---
+
+### Product Administration
+
+#### `POST /api/products`
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| `id` | string | no | |
+| `name` | string | **yes** | |
+| `description` | string | **yes** | |
+| `purchasePrice` | number | **yes** | positive (> 0) |
+| `stock` | number | **yes** | integer ≥ 0 |
+
+| Status | Body |
+|--------|------|
+| `201` | `{ message: 'Product created successfully' }` |
+| `400` | `{ error: "<validation details>" }` |
+| `500` | `{ error: "<message>" }` |
+
+#### `GET /api/products/:id/stock`
+
+| Status | Body |
+|--------|------|
+| `200` | `{ productId, stock }` |
+| `404` | `{ error: "Product not found" }` |
+| `500` | `{ error: "<message>" }` |
+
+---
+
+### Store Catalog
+
+#### `GET /api/catalog/products`
+
+| Status | Body |
+|--------|------|
+| `200` | `{ products: [{ id, name, description, salesPrice }] }` |
+| `500` | `{ error: "<message>" }` |
+
+#### `GET /api/catalog/products/:id`
+
+| Status | Body |
+|--------|------|
+| `200` | `{ id, name, description, salesPrice }` |
+| `404` | `{ error: "Product not found" }` |
+| `500` | `{ error: "<message>" }` |
+
+---
+
+### Payments
+
+#### `POST /api/payments`
+
+Business rule: `amount >= 100` → approved; `amount < 100` → declined.
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| `orderId` | string | **yes** | |
+| `amount` | number | **yes** | positive (> 0) |
+
+| Status | Body |
+|--------|------|
+| `200` | `{ transactionId, orderId, amount, status: 'approved', createdAt, updatedAt }` |
+| `400` | `{ error: "<validation details>" }` |
+| `422` | `{ transactionId, orderId, amount, status: 'declined', createdAt, updatedAt }` |
+| `500` | `{ error: "<message>" }` |
 
 ## 🧪 Testing Strategy
 
@@ -172,9 +266,16 @@ GET /health - Application health and status
 npm run test:coverage
 ```
 
-- Target: >90% code coverage
-- All critical business logic tested
-- Database operations verified
+Coverage thresholds enforced by Jest:
+
+| Scope | Statements | Branches | Functions | Lines |
+|-------|-----------|----------|-----------|-------|
+| Global | 95% | 85% | 90% | 95% |
+| `domain/*.entity.ts` | 95% | 90% | 90% | 95% |
+| `usecase/**/*.usecase.ts` | 100% | 100% | 100% | 100% |
+| `repository/*.repository.ts` | 95% | 80% | 100% | 95% |
+| `facade/*.facade.ts` | 100% | 100% | 100% | 100% |
+| `factory/*.factory.ts` | 100% | 100% | 100% | 100% |
 
 ## 🔍 Code Quality
 
@@ -257,10 +358,10 @@ Services:
 
 ### Version 2.1
 
-- [ ] REST API endpoints for all modules
+- [x] REST API endpoints for all modules
 - [ ] JWT authentication system
 - [ ] API documentation with Swagger
-- [ ] Request validation middleware
+- [x] Request validation middleware (Joi)
 
 ### Version 2.2
 
