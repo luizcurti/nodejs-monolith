@@ -163,26 +163,26 @@ Response `200`: `{ status, timestamp, uptime, environment }`
 
 #### `POST /api/clients`
 
-| Field | Type | Required | Constraints |
-|-------|------|----------|-------------|
-| `id` | string | no | |
-| `name` | string | **yes** | |
-| `email` | string | **yes** | valid e-mail format |
-| `address` | string | **yes** | |
+| Field     | Type   | Required | Constraints         |
+| --------- | ------ | -------- | ------------------- |
+| `id`      | string | no       |                     |
+| `name`    | string | **yes**  |                     |
+| `email`   | string | **yes**  | valid e-mail format |
+| `address` | string | **yes**  |                     |
 
-| Status | Body |
-|--------|------|
-| `201` | `{ message: 'Client created successfully' }` |
-| `400` | `{ error: "<validation details>" }` |
-| `500` | `{ error: "<message>" }` |
+| Status | Body                                         |
+| ------ | -------------------------------------------- |
+| `201`  | `{ message: 'Client created successfully' }` |
+| `400`  | `{ error: "<validation details>" }`          |
+| `500`  | `{ error: "<message>" }`                     |
 
 #### `GET /api/clients/:id`
 
-| Status | Body |
-|--------|------|
-| `200` | `{ id, name, email, address, createdAt, updatedAt }` |
-| `404` | `{ error: "Client not found" }` |
-| `500` | `{ error: "<message>" }` |
+| Status | Body                                                 |
+| ------ | ---------------------------------------------------- |
+| `200`  | `{ id, name, email, address, createdAt, updatedAt }` |
+| `404`  | `{ error: "Client not found" }`                      |
+| `500`  | `{ error: "<message>" }`                             |
 
 ---
 
@@ -190,27 +190,27 @@ Response `200`: `{ status, timestamp, uptime, environment }`
 
 #### `POST /api/products`
 
-| Field | Type | Required | Constraints |
-|-------|------|----------|-------------|
-| `id` | string | no | |
-| `name` | string | **yes** | |
-| `description` | string | **yes** | |
-| `purchasePrice` | number | **yes** | positive (> 0) |
-| `stock` | number | **yes** | integer ≥ 0 |
+| Field           | Type   | Required | Constraints    |
+| --------------- | ------ | -------- | -------------- |
+| `id`            | string | no       |                |
+| `name`          | string | **yes**  |                |
+| `description`   | string | **yes**  |                |
+| `purchasePrice` | number | **yes**  | positive (> 0) |
+| `stock`         | number | **yes**  | integer ≥ 0    |
 
-| Status | Body |
-|--------|------|
-| `201` | `{ message: 'Product created successfully' }` |
-| `400` | `{ error: "<validation details>" }` |
-| `500` | `{ error: "<message>" }` |
+| Status | Body                                          |
+| ------ | --------------------------------------------- |
+| `201`  | `{ message: 'Product created successfully' }` |
+| `400`  | `{ error: "<validation details>" }`           |
+| `500`  | `{ error: "<message>" }`                      |
 
 #### `GET /api/products/:id/stock`
 
-| Status | Body |
-|--------|------|
-| `200` | `{ productId, stock }` |
-| `404` | `{ error: "Product not found" }` |
-| `500` | `{ error: "<message>" }` |
+| Status | Body                             |
+| ------ | -------------------------------- |
+| `200`  | `{ productId, stock }`           |
+| `404`  | `{ error: "Product not found" }` |
+| `500`  | `{ error: "<message>" }`         |
 
 ---
 
@@ -218,18 +218,18 @@ Response `200`: `{ status, timestamp, uptime, environment }`
 
 #### `GET /api/catalog/products`
 
-| Status | Body |
-|--------|------|
-| `200` | `{ products: [{ id, name, description, salesPrice }] }` |
-| `500` | `{ error: "<message>" }` |
+| Status | Body                                                    |
+| ------ | ------------------------------------------------------- |
+| `200`  | `{ products: [{ id, name, description, salesPrice }] }` |
+| `500`  | `{ error: "<message>" }`                                |
 
 #### `GET /api/catalog/products/:id`
 
-| Status | Body |
-|--------|------|
-| `200` | `{ id, name, description, salesPrice }` |
-| `404` | `{ error: "Product not found" }` |
-| `500` | `{ error: "<message>" }` |
+| Status | Body                                    |
+| ------ | --------------------------------------- |
+| `200`  | `{ id, name, description, salesPrice }` |
+| `404`  | `{ error: "Product not found" }`        |
+| `500`  | `{ error: "<message>" }`                |
 
 ---
 
@@ -239,17 +239,17 @@ Response `200`: `{ status, timestamp, uptime, environment }`
 
 Business rule: `amount >= 100` → approved; `amount < 100` → declined.
 
-| Field | Type | Required | Constraints |
-|-------|------|----------|-------------|
-| `orderId` | string | **yes** | |
-| `amount` | number | **yes** | positive (> 0) |
+| Field     | Type   | Required | Constraints    |
+| --------- | ------ | -------- | -------------- |
+| `orderId` | string | **yes**  |                |
+| `amount`  | number | **yes**  | positive (> 0) |
 
-| Status | Body |
-|--------|------|
-| `200` | `{ transactionId, orderId, amount, status: 'approved', createdAt, updatedAt }` |
-| `400` | `{ error: "<validation details>" }` |
-| `422` | `{ transactionId, orderId, amount, status: 'declined', createdAt, updatedAt }` |
-| `500` | `{ error: "<message>" }` |
+| Status | Body                                                                           |
+| ------ | ------------------------------------------------------------------------------ |
+| `200`  | `{ transactionId, orderId, amount, status: 'approved', createdAt, updatedAt }` |
+| `400`  | `{ error: "<validation details>" }`                                            |
+| `422`  | `{ transactionId, orderId, amount, status: 'declined', createdAt, updatedAt }` |
+| `500`  | `{ error: "<message>" }`                                                       |
 
 ## 🧪 Testing Strategy
 
@@ -268,14 +268,14 @@ npm run test:coverage
 
 Coverage thresholds enforced by Jest:
 
-| Scope | Statements | Branches | Functions | Lines |
-|-------|-----------|----------|-----------|-------|
-| Global | 95% | 85% | 90% | 95% |
-| `domain/*.entity.ts` | 95% | 90% | 90% | 95% |
-| `usecase/**/*.usecase.ts` | 100% | 100% | 100% | 100% |
-| `repository/*.repository.ts` | 95% | 80% | 100% | 95% |
-| `facade/*.facade.ts` | 100% | 100% | 100% | 100% |
-| `factory/*.factory.ts` | 100% | 100% | 100% | 100% |
+| Scope                        | Statements | Branches | Functions | Lines |
+| ---------------------------- | ---------- | -------- | --------- | ----- |
+| Global                       | 95%        | 85%      | 90%       | 95%   |
+| `domain/*.entity.ts`         | 95%        | 90%      | 90%       | 95%   |
+| `usecase/**/*.usecase.ts`    | 100%       | 100%     | 100%      | 100%  |
+| `repository/*.repository.ts` | 95%        | 80%      | 100%      | 95%   |
+| `facade/*.facade.ts`         | 100%       | 100%     | 100%      | 100%  |
+| `factory/*.factory.ts`       | 100%       | 100%     | 100%      | 100%  |
 
 ## 🔍 Code Quality
 
