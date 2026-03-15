@@ -1,4 +1,4 @@
-# NodeJS Monolith 2.0 🚀
+# NodeJS Monolith 🚀
 
 [![CI/CD Pipeline](https://github.com/luizcurti/nodejs-monolith/actions/workflows/ci.yml/badge.svg)](https://github.com/luizcurti/nodejs-monolith/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/luizcurti/nodejs-monolith/branch/main/graph/badge.svg)](https://codecov.io/gh/luizcurti/nodejs-monolith)
@@ -6,148 +6,152 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6.0-blue)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A modern, production-ready TypeScript monolith built with Clean Architecture principles, comprehensive testing, and enterprise-grade infrastructure.
+Modular TypeScript monolith built with Clean Architecture principles, full test coverage (unit + E2E), and production-ready infrastructure.
 
 ## 🏗️ Architecture
 
-This project demonstrates a well-structured monolithic application using **Clean Architecture** with clear separation of concerns:
+The project follows **Clean Architecture** with clear separation of concerns. Each module is independent and communicates exclusively through its **Facades**.
 
-### 📂 Core Modules
+### 📂 Modules
 
-- **🔧 Client-ADM**: Complete client administration and management system
-- **💳 Payment**: Robust payment processing and transaction management
-- **📦 Product-ADM**: Comprehensive product administration and inventory control
-- **🏪 Store-Catalog**: High-performance product catalog for storefront operations
+| Module | Responsibility |
+| --- | --- |
+| **client-adm** | Client registration and lookup |
+| **product-adm** | Product registration and inventory control |
+| **store-catalog** | Product catalog for storefront |
+| **payment** | Payment transaction processing |
+| **invoice** | Invoice generation and retrieval |
+| **checkout** | Orchestrator: validate → check stock → pay → issue invoice |
 
-### 🎯 Architecture Layers
+### 🎯 Module layers
 
 ```
 src/
-├── infrastructure/          # External concerns (DB, logging, etc.)
-├── modules/
-│   ├── @shared/            # Shared domain entities and interfaces
-│   └── [module-name]/
-│       ├── domain/         # Business entities and domain logic
-│       ├── facade/         # Public module interface (API)
-│       ├── factory/        # Dependency injection factories
-│       ├── gateway/        # Interface definitions for external deps
-│       ├── repository/     # Data persistence layer
-│       └── usecase/        # Application business logic
+├── infrastructure/          # Infrastructure (DB, logging)
+└── modules/
+    ├── @shared/             # Shared domain entities and interfaces
+    └── [module]/
+        ├── domain/          # Business entities and domain rules
+        ├── facade/          # Public module interface
+        ├── factory/         # Dependency injection
+        ├── gateway/         # Interfaces for external dependencies
+        ├── repository/      # Data persistence
+        ├── routes/          # HTTP routes + E2E tests
+        └── usecase/         # Application use cases
 ```
 
-## 🛠️ Technology Stack
+### 🔄 Checkout flow
 
-### Core Technologies
+```
+POST /api/checkout
+  │
+  ├─ ClientAdmFacade    → validates client exists
+  ├─ ProductAdmFacade   → checks stock for each product
+  ├─ StoreCatalogFacade → retrieves product name and sale price
+  ├─ PaymentFacade      → processes payment
+  │     ├─ total ≥ 100 → approved (200)
+  │     └─ total < 100 → declined (422)
+  ├─ InvoiceFacade      → generates invoice (only if approved)
+  └─ OrderRepository    → persists the order
+```
 
-- **🔷 TypeScript** - Type-safe JavaScript with latest ES features
-- **⚡ Node.js** - High-performance JavaScript runtime
-- **🌐 Express** - Fast, unopinionated web framework
+## 🛠️ Stack
 
-### Database & Persistence
-
-- **🐘 PostgreSQL** - Production database (via Docker)
-- **📁 SQLite** - Development and testing database
-- **🔄 Sequelize** - Modern ORM with TypeScript support
-- **🏗️ Redis** - Caching and session management
-
-### Development & Quality
-
-- **🧪 Jest** - Comprehensive testing framework
-- **📏 ESLint** - Code linting and quality enforcement
-- **🎨 Prettier** - Automatic code formatting
-- **📋 Winston** - Advanced logging system
-- **🐳 Docker** - Containerized development environment
+| Category | Technology |
+| --- | --- |
+| Language | TypeScript 5.6 |
+| Runtime | Node.js 18+ |
+| Framework | Express |
+| ORM | Sequelize + sequelize-typescript |
+| Production DB | PostgreSQL 16 (Docker) |
+| Test DB | SQLite (in-memory) |
+| Cache | Redis 7 |
+| Testing | Jest + Supertest |
+| Validation | Joi |
+| Lint/Format | ESLint + Prettier |
+| Logging | Winston |
+| Containers | Docker Compose |
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Node.js** 18+ and npm 8+
-- **Docker** and **Docker Compose**
-- **Git**
+- **Node.js** ≥ 18 and npm
+- **Docker** and **Docker Compose** (CLI v2)
 
-### 1. Clone and Setup
+### Installation
 
 ```bash
 git clone https://github.com/luizcurti/nodejs-monolith.git
 cd nodejs-monolith
-cp .env.example .env
 npm install
 ```
 
-### 2. Start Infrastructure
+### Start infrastructure
 
 ```bash
-# Start PostgreSQL, Redis, and PgAdmin
 npm run docker:up
-
-# View logs
-npm run docker:logs
 ```
 
-> **Note:** All scripts use `docker compose` (CLI v2). Requires Docker Desktop ≥ 4.x — the legacy `docker-compose` (v1) binary is not supported.
+This starts:
+- **PostgreSQL 16** on port `5432`
+- **PgAdmin 4** at `http://localhost:8080`
+- **Redis 7** on port `6379`
 
-### 3. Development Commands
+### Run
 
 ```bash
-# Run tests
-npm test
-
-# Start development server with hot reload
+# Development (hot reload)
 npm run start:dev
 
-# Build for production
+# Production
 npm run build && npm start
-
-# Code quality
-npm run lint
-npm run format
 ```
 
-## 🔧 Available Scripts
+## 🔧 Available scripts
 
-| Script                  | Description                        |
-| ----------------------- | ---------------------------------- |
-| `npm start`             | Run production build               |
-| `npm run start:dev`     | Development server with hot reload |
-| `npm run build`         | Build TypeScript to JavaScript     |
-| `npm test`              | Run all tests with coverage        |
-| `npm run test:watch`    | Run tests in watch mode            |
-| `npm run test:coverage` | Generate test coverage report      |
-| `npm run lint`          | Run ESLint code analysis           |
-| `npm run lint:fix`      | Auto-fix ESLint issues             |
-| `npm run format`        | Format code with Prettier          |
-| `npm run docker:up`     | Start all Docker services          |
-| `npm run docker:down`   | Stop all Docker services           |
-| `npm run docker:logs`   | View Docker container logs         |
+| Script | Description |
+| --- | --- |
+| `npm start` | Run production build |
+| `npm run start:dev` | Development server with hot reload |
+| `npm run build` | Compile TypeScript |
+| `npm test` | Run all tests |
+| `npm run test:watch` | Tests in watch mode |
+| `npm run test:coverage` | Generate coverage report |
+| `npm run lint` | ESLint analysis |
+| `npm run lint:fix` | Auto-fix lint errors |
+| `npm run format` | Format code with Prettier |
+| `npm run docker:up` | Start Docker containers |
+| `npm run docker:down` | Stop Docker containers |
+| `npm run docker:logs` | Stream container logs |
 
-## 🗄️ Database Configuration
+## 🗄️ Database
 
-### Development & Production
-
-- **Database**: PostgreSQL 16 (Docker)
-- **Admin Panel**: PgAdmin 4 at `http://localhost:8080`
-- **Connection**: localhost:5432
-- **Cache**: Redis at localhost:6379
-
-### Testing
-
-- **Database**: SQLite (in-memory)
-- **Fast execution**: No Docker dependency for tests
-
-### Database Credentials
+### Credentials
 
 ```
-Database: monolith_db
-User: monolith_user
-Password: monolith_pass
+PostgreSQL:
+  database: monolith_db
+  user:     monolith_user
+  password: monolith_pass
+  host:     localhost:5432
 
-PgAdmin: admin@monolith.com / admin123
+PgAdmin:
+  email:    admin@monolith.com
+  password: admin123
+  url:      http://localhost:8080
 ```
+
+### Testing strategy
+
+- **Unit and integration tests**: SQLite in-memory — no Docker dependency
+- **Production / development**: PostgreSQL via Docker
 
 ## 📊 API Endpoints
 
-All request bodies are validated by **Joi**. Validation errors return `400` with `{ error: "<details>" }`.
+All routes with a body are validated via **Joi**. Validation errors return `400` with `{ error: "<details>" }`.
+
+---
 
 ### Health Check
 
@@ -155,7 +159,7 @@ All request bodies are validated by **Joi**. Validation errors return `400` with
 GET /health
 ```
 
-Response `200`: `{ status, timestamp, uptime, environment }`
+`200` → `{ status, timestamp, uptime, environment }`
 
 ---
 
@@ -163,26 +167,26 @@ Response `200`: `{ status, timestamp, uptime, environment }`
 
 #### `POST /api/clients`
 
-| Field     | Type   | Required | Constraints         |
-| --------- | ------ | -------- | ------------------- |
-| `id`      | string | no       |                     |
-| `name`    | string | **yes**  |                     |
-| `email`   | string | **yes**  | valid e-mail format |
-| `address` | string | **yes**  |                     |
+| Field | Type | Required | Constraints |
+| --- | --- | --- | --- |
+| `id` | string | no | |
+| `name` | string | **yes** | |
+| `email` | string | **yes** | valid email format |
+| `address` | string | **yes** | |
 
-| Status | Body                                         |
-| ------ | -------------------------------------------- |
-| `201`  | `{ message: 'Client created successfully' }` |
-| `400`  | `{ error: "<validation details>" }`          |
-| `500`  | `{ error: "<message>" }`                     |
+| Status | Body |
+| --- | --- |
+| `201` | `{ message: 'Client created successfully' }` |
+| `400` | `{ error: "..." }` |
+| `500` | `{ error: "..." }` |
 
 #### `GET /api/clients/:id`
 
-| Status | Body                                                 |
-| ------ | ---------------------------------------------------- |
-| `200`  | `{ id, name, email, address, createdAt, updatedAt }` |
-| `404`  | `{ error: "Client not found" }`                      |
-| `500`  | `{ error: "<message>" }`                             |
+| Status | Body |
+| --- | --- |
+| `200` | `{ id, name, email, address, createdAt, updatedAt }` |
+| `404` | `{ error: "Client not found" }` |
+| `500` | `{ error: "..." }` |
 
 ---
 
@@ -190,27 +194,27 @@ Response `200`: `{ status, timestamp, uptime, environment }`
 
 #### `POST /api/products`
 
-| Field           | Type   | Required | Constraints    |
-| --------------- | ------ | -------- | -------------- |
-| `id`            | string | no       |                |
-| `name`          | string | **yes**  |                |
-| `description`   | string | **yes**  |                |
-| `purchasePrice` | number | **yes**  | positive (> 0) |
-| `stock`         | number | **yes**  | integer ≥ 0    |
+| Field | Type | Required | Constraints |
+| --- | --- | --- | --- |
+| `id` | string | no | |
+| `name` | string | **yes** | |
+| `description` | string | **yes** | |
+| `purchasePrice` | number | **yes** | positive (> 0) |
+| `stock` | number | **yes** | integer ≥ 0 |
 
-| Status | Body                                          |
-| ------ | --------------------------------------------- |
-| `201`  | `{ message: 'Product created successfully' }` |
-| `400`  | `{ error: "<validation details>" }`           |
-| `500`  | `{ error: "<message>" }`                      |
+| Status | Body |
+| --- | --- |
+| `201` | `{ message: 'Product created successfully' }` |
+| `400` | `{ error: "..." }` |
+| `500` | `{ error: "..." }` |
 
 #### `GET /api/products/:id/stock`
 
-| Status | Body                             |
-| ------ | -------------------------------- |
-| `200`  | `{ productId, stock }`           |
-| `404`  | `{ error: "Product not found" }` |
-| `500`  | `{ error: "<message>" }`         |
+| Status | Body |
+| --- | --- |
+| `200` | `{ productId, stock }` |
+| `404` | `{ error: "Product not found" }` |
+| `500` | `{ error: "..." }` |
 
 ---
 
@@ -218,114 +222,160 @@ Response `200`: `{ status, timestamp, uptime, environment }`
 
 #### `GET /api/catalog/products`
 
-| Status | Body                                                    |
-| ------ | ------------------------------------------------------- |
-| `200`  | `{ products: [{ id, name, description, salesPrice }] }` |
-| `500`  | `{ error: "<message>" }`                                |
+| Status | Body |
+| --- | --- |
+| `200` | `{ products: [{ id, name, description, salesPrice }] }` |
+| `500` | `{ error: "..." }` |
 
 #### `GET /api/catalog/products/:id`
 
-| Status | Body                                    |
-| ------ | --------------------------------------- |
-| `200`  | `{ id, name, description, salesPrice }` |
-| `404`  | `{ error: "Product not found" }`        |
-| `500`  | `{ error: "<message>" }`                |
+| Status | Body |
+| --- | --- |
+| `200` | `{ id, name, description, salesPrice }` |
+| `404` | `{ error: "Product not found" }` |
+| `500` | `{ error: "..." }` |
 
 ---
 
 ### Payments
 
+Business rule: `amount ≥ 100` → `approved`; `amount < 100` → `declined`.
+
 #### `POST /api/payments`
 
-Business rule: `amount >= 100` → approved; `amount < 100` → declined.
+| Field | Type | Required | Constraints |
+| --- | --- | --- | --- |
+| `orderId` | string | **yes** | |
+| `amount` | number | **yes** | positive (> 0) |
 
-| Field     | Type   | Required | Constraints    |
-| --------- | ------ | -------- | -------------- |
-| `orderId` | string | **yes**  |                |
-| `amount`  | number | **yes**  | positive (> 0) |
+| Status | Body |
+| --- | --- |
+| `200` | `{ transactionId, orderId, amount, status: 'approved', createdAt, updatedAt }` |
+| `400` | `{ error: "..." }` |
+| `422` | `{ transactionId, orderId, amount, status: 'declined', createdAt, updatedAt }` |
+| `500` | `{ error: "..." }` |
 
-| Status | Body                                                                           |
-| ------ | ------------------------------------------------------------------------------ |
-| `200`  | `{ transactionId, orderId, amount, status: 'approved', createdAt, updatedAt }` |
-| `400`  | `{ error: "<validation details>" }`                                            |
-| `422`  | `{ transactionId, orderId, amount, status: 'declined', createdAt, updatedAt }` |
-| `500`  | `{ error: "<message>" }`                                                       |
+---
 
-## 🧪 Testing Strategy
+### Invoice
 
-### Test Categories
+#### `POST /api/invoices`
 
-- **Unit Tests**: Individual component testing
-- **Integration Tests**: Module interaction testing
-- **Repository Tests**: Database interaction testing
-- **Facade Tests**: Public API testing
+| Field | Type | Required | Constraints |
+| --- | --- | --- | --- |
+| `id` | string | no | |
+| `name` | string | **yes** | |
+| `document` | string | **yes** | |
+| `address` | string | **yes** | |
+| `items` | array | **yes** | at least 1 item |
+| `items[].name` | string | **yes** | |
+| `items[].price` | number | **yes** | positive (> 0) |
+| `items[].id` | string | no | |
 
-### Test Coverage
+| Status | Body |
+| --- | --- |
+| `201` | `{ id, name, document, address, items: [{id, name, price}], total, createdAt }` |
+| `400` | `{ error: "..." }` |
+| `500` | `{ error: "..." }` |
+
+#### `GET /api/invoices/:id`
+
+| Status | Body |
+| --- | --- |
+| `200` | `{ id, name, document, address, items: [{id, name, price}], total, createdAt }` |
+| `404` | `{ error: "Invoice not found" }` |
+| `500` | `{ error: "..." }` |
+
+---
+
+### Checkout
+
+Orchestrates all modules in a single transactional flow.
+
+#### `POST /api/checkout`
+
+| Field | Type | Required | Constraints |
+| --- | --- | --- | --- |
+| `clientId` | string | **yes** | client must exist |
+| `products` | array | **yes** | at least 1 item |
+| `products[].productId` | string | **yes** | product must have stock |
+
+| Status | Condition | Body |
+| --- | --- | --- |
+| `200` | Payment approved (total ≥ 100) | `{ id, invoiceId, transactionId, status: 'approved', total, products }` |
+| `400` | Input validation failed | `{ error: "..." }` |
+| `422` | Payment declined (total < 100) | `{ id, invoiceId: null, transactionId, status: 'declined', total, products }` |
+| `422` | Client not found / out of stock | `{ error: "..." }` |
+| `500` | Internal error | `{ error: "..." }` |
+
+> **Note:** `invoiceId` is `null` for declined orders — invoices are only generated for approved payments.
+
+---
+
+## 🧪 Tests
+
+### Suites
+
+| Type | Suites | Tests |
+| --- | --- | --- |
+| Unit (domain, usecase) | 9 | — |
+| Integration (repository, facade) | 9 | — |
+| E2E (routes with SQLite) | 6 | — |
+| **Total** | **24** | **160** |
+
+### Running tests
 
 ```bash
+# All tests
+npm test
+
+# E2E only (routes)
+./node_modules/.bin/jest --testPathPattern="routes" --forceExit
+
+# With coverage
 npm run test:coverage
 ```
 
-Coverage thresholds enforced by Jest:
+### Coverage thresholds (jest.config.ts)
 
-| Scope                        | Statements | Branches | Functions | Lines |
-| ---------------------------- | ---------- | -------- | --------- | ----- |
-| Global                       | 95%        | 85%      | 90%       | 95%   |
-| `domain/*.entity.ts`         | 95%        | 90%      | 90%       | 95%   |
-| `usecase/**/*.usecase.ts`    | 100%       | 100%     | 100%      | 100%  |
-| `repository/*.repository.ts` | 95%        | 80%      | 100%      | 95%   |
-| `facade/*.facade.ts`         | 100%       | 100%     | 100%      | 100%  |
-| `factory/*.factory.ts`       | 100%       | 100%     | 100%      | 100%  |
+| Scope | Statements | Branches | Functions | Lines |
+| --- | --- | --- | --- | --- |
+| Global | 95% | 85% | 90% | 95% |
+| `domain/*.entity.ts` | 95% | 90% | 90% | 95% |
+| `usecase/**/*.usecase.ts` | 100% | 100% | 100% | 100% |
+| `repository/*.repository.ts` | 95% | 80% | 100% | 95% |
+| `facade/*.facade.ts` | 100% | 100% | 100% | 100% |
+| `factory/*.factory.ts` | 100% | 100% | 100% | 100% |
 
 ## 🔍 Code Quality
 
-### Automated Quality Checks
-
-- **ESLint**: Advanced TypeScript linting
-- **Prettier**: Consistent code formatting
-- **Husky**: Pre-commit hooks (when configured)
-- **TypeScript**: Strict type checking
-
-### Quality Metrics
+```bash
+npm run lint        # ESLint
+npm run lint:fix    # ESLint with auto-fix
+npm run format      # Prettier
+```
 
 - Zero ESLint errors
 - 100% Prettier compliance
-- Strict TypeScript configuration
-- Comprehensive test coverage
+- TypeScript strict mode
 
-## 🚀 CI/CD Pipeline
-
-### ⚡ Simple & Fast GitHub Actions
-
-**Single job** que executa tudo de forma eficiente:
-
-#### 🔍 Quality & Testing Pipeline
+## 🐳 Docker
 
 ```bash
-✓ TypeScript compilation check
-✓ ESLint code analysis
-✓ Prettier formatting validation
-✓ Jest tests with 100% coverage
-✓ npm audit security check
-✓ Codecov upload (push only)
+npm run docker:up    # Start PostgreSQL, PgAdmin and Redis
+npm run docker:down  # Stop all containers
+npm run docker:logs  # Stream logs in real time
 ```
 
-#### 🎯 Infrastructure
+### Services
 
-- **Node.js**: 20.x LTS only
-- **Database**: PostgreSQL 16 (test services)
-- **Cache**: npm dependency caching
-- **Runtime**: ~3-4 minutes total
+| Service | Image | Port |
+| --- | --- | --- |
+| PostgreSQL | postgres:16-alpine | 5432 |
+| PgAdmin 4 | dpage/pgadmin4 | 8080 |
+| Redis | redis:7-alpine | 6379 |
 
-#### 🛠️ Local Testing
-
-```bash
-make ci-test    # Run same checks locally
-```
-
-## 🌍 Environment Configuration
-
-### Environment Variables
+## 🌍 Environment Variables
 
 ```bash
 # Database
@@ -339,58 +389,14 @@ DB_PASSWORD=monolith_pass
 NODE_ENV=development
 PORT=3000
 LOG_LEVEL=info
-
-# Security
-JWT_SECRET=your-secret-key
-JWT_EXPIRES_IN=7d
 ```
-
-## 🐳 Docker Services
-
-```yaml
-Services:
-  - postgres:5432 # PostgreSQL database
-  - pgadmin:8080 # Database admin interface
-  - redis:6379 # Redis cache
-```
-
-## 🔮 Roadmap
-
-### Version 2.1
-
-- [x] REST API endpoints for all modules
-- [ ] JWT authentication system
-- [ ] API documentation with Swagger
-- [x] Request validation middleware (Joi)
-
-### Version 2.2
-
-- [ ] GraphQL API layer
-- [ ] Real-time features with WebSockets
-- [ ] Advanced caching strategies
-- [ ] Performance monitoring
-
-### Version 3.0
-
-- [ ] Microservices migration path
-- [ ] Event sourcing implementation
-- [ ] CQRS pattern adoption
-- [ ] Kubernetes deployment
-
-## 📈 Performance Features
-
-- **Connection Pooling**: Optimized database connections
-- **Caching Strategy**: Redis for frequently accessed data
-- **Graceful Shutdown**: Proper resource cleanup
-- **Health Monitoring**: Application status endpoints
-- **Structured Logging**: Comprehensive log management
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Create a branch (`git checkout -b feature/my-feature`)
 3. Run tests (`npm test`)
-4. Check code quality (`npm run lint && npm run format`)
-5. Commit changes (`git commit -m 'Add amazing feature'`)
-6. Push branch (`git push origin feature/amazing-feature`)
+4. Check lint and formatting (`npm run lint && npm run format`)
+5. Commit (`git commit -m 'feat: my feature'`)
+6. Push (`git push origin feature/my-feature`)
 7. Open a Pull Request
