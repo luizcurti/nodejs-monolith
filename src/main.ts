@@ -7,6 +7,8 @@ import clientAdmRouter from './modules/client-adm/routes/client-adm.routes';
 import productAdmRouter from './modules/product-adm/routes/product-adm.routes';
 import storeCatalogRouter from './modules/store-catalog/routes/store-catalog.routes';
 import paymentRouter from './modules/payment/routes/payment.routes';
+import invoiceRouter from './modules/invoice/routes/invoice.routes';
+import checkoutRouter from './modules/checkout/routes/checkout.routes';
 
 // Load environment variables
 config();
@@ -33,6 +35,8 @@ app.use('/api/clients', clientAdmRouter);
 app.use('/api/products', productAdmRouter);
 app.use('/api/catalog/products', storeCatalogRouter);
 app.use('/api/payments', paymentRouter);
+app.use('/api/invoices', invoiceRouter);
+app.use('/api/checkout', checkoutRouter);
 
 // Database connection
 const connectDatabase = async (): Promise<void> => {
