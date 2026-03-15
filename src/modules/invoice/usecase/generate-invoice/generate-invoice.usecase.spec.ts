@@ -50,8 +50,16 @@ describe('GenerateInvoiceUseCase unit test', () => {
     expect(result.document).toBe('123.456.789-00');
     expect(result.address).toBe('123 Main St');
     expect(result.items).toHaveLength(2);
-    expect(result.items[0]).toEqual({ id: 'item-1', name: 'Product A', price: 50 });
-    expect(result.items[1]).toEqual({ id: 'item-2', name: 'Product B', price: 75 });
+    expect(result.items[0]).toEqual({
+      id: 'item-1',
+      name: 'Product A',
+      price: 50,
+    });
+    expect(result.items[1]).toEqual({
+      id: 'item-2',
+      name: 'Product B',
+      price: 75,
+    });
     expect(result.total).toBe(125);
   });
 

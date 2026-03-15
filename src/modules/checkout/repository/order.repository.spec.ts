@@ -4,7 +4,9 @@ import Order from '../domain/order.entity';
 import OrderModel from './order.model';
 import OrderRepository from './order.repository';
 
-const makeOrder = (overrides: Partial<ConstructorParameters<typeof Order>[0]> = {}) =>
+const makeOrder = (
+  overrides: Partial<ConstructorParameters<typeof Order>[0]> = {}
+) =>
   new Order({
     id: new Id('order-1'),
     clientId: 'client-1',
@@ -66,7 +68,11 @@ describe('OrderRepository integration test', () => {
   });
 
   it('should save an order with null invoiceId and transactionId', async () => {
-    const order = makeOrder({ status: 'declined', invoiceId: null, transactionId: null });
+    const order = makeOrder({
+      status: 'declined',
+      invoiceId: null,
+      transactionId: null,
+    });
     const repository = new OrderRepository();
     const result = await repository.addOrder(order);
 
@@ -77,6 +83,8 @@ describe('OrderRepository integration test', () => {
 
   it('should throw when order is not found', async () => {
     const repository = new OrderRepository();
-    await expect(repository.findOrder('nonexistent-id')).rejects.toThrow('Order not found');
+    await expect(repository.findOrder('nonexistent-id')).rejects.toThrow(
+      'Order not found'
+    );
   });
 });
