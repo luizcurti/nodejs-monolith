@@ -14,14 +14,14 @@ The project follows **Clean Architecture** with clear separation of concerns. Ea
 
 ### 📂 Modules
 
-| Module | Responsibility |
-| --- | --- |
-| **client-adm** | Client registration and lookup |
-| **product-adm** | Product registration and inventory control |
-| **store-catalog** | Product catalog for storefront |
-| **payment** | Payment transaction processing |
-| **invoice** | Invoice generation and retrieval |
-| **checkout** | Orchestrator: validate → check stock → pay → issue invoice |
+| Module            | Responsibility                                             |
+| ----------------- | ---------------------------------------------------------- |
+| **client-adm**    | Client registration and lookup                             |
+| **product-adm**   | Product registration and inventory control                 |
+| **store-catalog** | Product catalog for storefront                             |
+| **payment**       | Payment transaction processing                             |
+| **invoice**       | Invoice generation and retrieval                           |
+| **checkout**      | Orchestrator: validate → check stock → pay → issue invoice |
 
 ### 🎯 Module layers
 
@@ -57,20 +57,20 @@ POST /api/checkout
 
 ## 🛠️ Stack
 
-| Category | Technology |
-| --- | --- |
-| Language | TypeScript 5.6 |
-| Runtime | Node.js 18+ |
-| Framework | Express |
-| ORM | Sequelize + sequelize-typescript |
-| Production DB | PostgreSQL 16 (Docker) |
-| Test DB | SQLite (in-memory) |
-| Cache | Redis 7 |
-| Testing | Jest + Supertest |
-| Validation | Joi |
-| Lint/Format | ESLint + Prettier |
-| Logging | Winston |
-| Containers | Docker Compose |
+| Category      | Technology                       |
+| ------------- | -------------------------------- |
+| Language      | TypeScript 5.6                   |
+| Runtime       | Node.js 18+                      |
+| Framework     | Express                          |
+| ORM           | Sequelize + sequelize-typescript |
+| Production DB | PostgreSQL 16 (Docker)           |
+| Test DB       | SQLite (in-memory)               |
+| Cache         | Redis 7                          |
+| Testing       | Jest + Supertest                 |
+| Validation    | Joi                              |
+| Lint/Format   | ESLint + Prettier                |
+| Logging       | Winston                          |
+| Containers    | Docker Compose                   |
 
 ## 🚀 Quick Start
 
@@ -94,6 +94,7 @@ npm run docker:up
 ```
 
 This starts:
+
 - **PostgreSQL 16** on port `5432`
 - **PgAdmin 4** at `http://localhost:8080`
 - **Redis 7** on port `6379`
@@ -110,20 +111,20 @@ npm run build && npm start
 
 ## 🔧 Available scripts
 
-| Script | Description |
-| --- | --- |
-| `npm start` | Run production build |
-| `npm run start:dev` | Development server with hot reload |
-| `npm run build` | Compile TypeScript |
-| `npm test` | Run all tests |
-| `npm run test:watch` | Tests in watch mode |
-| `npm run test:coverage` | Generate coverage report |
-| `npm run lint` | ESLint analysis |
-| `npm run lint:fix` | Auto-fix lint errors |
-| `npm run format` | Format code with Prettier |
-| `npm run docker:up` | Start Docker containers |
-| `npm run docker:down` | Stop Docker containers |
-| `npm run docker:logs` | Stream container logs |
+| Script                  | Description                        |
+| ----------------------- | ---------------------------------- |
+| `npm start`             | Run production build               |
+| `npm run start:dev`     | Development server with hot reload |
+| `npm run build`         | Compile TypeScript                 |
+| `npm test`              | Run all tests                      |
+| `npm run test:watch`    | Tests in watch mode                |
+| `npm run test:coverage` | Generate coverage report           |
+| `npm run lint`          | ESLint analysis                    |
+| `npm run lint:fix`      | Auto-fix lint errors               |
+| `npm run format`        | Format code with Prettier          |
+| `npm run docker:up`     | Start Docker containers            |
+| `npm run docker:down`   | Stop Docker containers             |
+| `npm run docker:logs`   | Stream container logs              |
 
 ## 🗄️ Database
 
@@ -167,26 +168,26 @@ GET /health
 
 #### `POST /api/clients`
 
-| Field | Type | Required | Constraints |
-| --- | --- | --- | --- |
-| `id` | string | no | |
-| `name` | string | **yes** | |
-| `email` | string | **yes** | valid email format |
-| `address` | string | **yes** | |
+| Field     | Type   | Required | Constraints        |
+| --------- | ------ | -------- | ------------------ |
+| `id`      | string | no       |                    |
+| `name`    | string | **yes**  |                    |
+| `email`   | string | **yes**  | valid email format |
+| `address` | string | **yes**  |                    |
 
-| Status | Body |
-| --- | --- |
-| `201` | `{ message: 'Client created successfully' }` |
-| `400` | `{ error: "..." }` |
-| `500` | `{ error: "..." }` |
+| Status | Body                                         |
+| ------ | -------------------------------------------- |
+| `201`  | `{ message: 'Client created successfully' }` |
+| `400`  | `{ error: "..." }`                           |
+| `500`  | `{ error: "..." }`                           |
 
 #### `GET /api/clients/:id`
 
-| Status | Body |
-| --- | --- |
-| `200` | `{ id, name, email, address, createdAt, updatedAt }` |
-| `404` | `{ error: "Client not found" }` |
-| `500` | `{ error: "..." }` |
+| Status | Body                                                 |
+| ------ | ---------------------------------------------------- |
+| `200`  | `{ id, name, email, address, createdAt, updatedAt }` |
+| `404`  | `{ error: "Client not found" }`                      |
+| `500`  | `{ error: "..." }`                                   |
 
 ---
 
@@ -194,27 +195,27 @@ GET /health
 
 #### `POST /api/products`
 
-| Field | Type | Required | Constraints |
-| --- | --- | --- | --- |
-| `id` | string | no | |
-| `name` | string | **yes** | |
-| `description` | string | **yes** | |
-| `purchasePrice` | number | **yes** | positive (> 0) |
-| `stock` | number | **yes** | integer ≥ 0 |
+| Field           | Type   | Required | Constraints    |
+| --------------- | ------ | -------- | -------------- |
+| `id`            | string | no       |                |
+| `name`          | string | **yes**  |                |
+| `description`   | string | **yes**  |                |
+| `purchasePrice` | number | **yes**  | positive (> 0) |
+| `stock`         | number | **yes**  | integer ≥ 0    |
 
-| Status | Body |
-| --- | --- |
-| `201` | `{ message: 'Product created successfully' }` |
-| `400` | `{ error: "..." }` |
-| `500` | `{ error: "..." }` |
+| Status | Body                                          |
+| ------ | --------------------------------------------- |
+| `201`  | `{ message: 'Product created successfully' }` |
+| `400`  | `{ error: "..." }`                            |
+| `500`  | `{ error: "..." }`                            |
 
 #### `GET /api/products/:id/stock`
 
-| Status | Body |
-| --- | --- |
-| `200` | `{ productId, stock }` |
-| `404` | `{ error: "Product not found" }` |
-| `500` | `{ error: "..." }` |
+| Status | Body                             |
+| ------ | -------------------------------- |
+| `200`  | `{ productId, stock }`           |
+| `404`  | `{ error: "Product not found" }` |
+| `500`  | `{ error: "..." }`               |
 
 ---
 
@@ -222,18 +223,18 @@ GET /health
 
 #### `GET /api/catalog/products`
 
-| Status | Body |
-| --- | --- |
-| `200` | `{ products: [{ id, name, description, salesPrice }] }` |
-| `500` | `{ error: "..." }` |
+| Status | Body                                                    |
+| ------ | ------------------------------------------------------- |
+| `200`  | `{ products: [{ id, name, description, salesPrice }] }` |
+| `500`  | `{ error: "..." }`                                      |
 
 #### `GET /api/catalog/products/:id`
 
-| Status | Body |
-| --- | --- |
-| `200` | `{ id, name, description, salesPrice }` |
-| `404` | `{ error: "Product not found" }` |
-| `500` | `{ error: "..." }` |
+| Status | Body                                    |
+| ------ | --------------------------------------- |
+| `200`  | `{ id, name, description, salesPrice }` |
+| `404`  | `{ error: "Product not found" }`        |
+| `500`  | `{ error: "..." }`                      |
 
 ---
 
@@ -243,17 +244,17 @@ Business rule: `amount ≥ 100` → `approved`; `amount < 100` → `declined`.
 
 #### `POST /api/payments`
 
-| Field | Type | Required | Constraints |
-| --- | --- | --- | --- |
-| `orderId` | string | **yes** | |
-| `amount` | number | **yes** | positive (> 0) |
+| Field     | Type   | Required | Constraints    |
+| --------- | ------ | -------- | -------------- |
+| `orderId` | string | **yes**  |                |
+| `amount`  | number | **yes**  | positive (> 0) |
 
-| Status | Body |
-| --- | --- |
-| `200` | `{ transactionId, orderId, amount, status: 'approved', createdAt, updatedAt }` |
-| `400` | `{ error: "..." }` |
-| `422` | `{ transactionId, orderId, amount, status: 'declined', createdAt, updatedAt }` |
-| `500` | `{ error: "..." }` |
+| Status | Body                                                                           |
+| ------ | ------------------------------------------------------------------------------ |
+| `200`  | `{ transactionId, orderId, amount, status: 'approved', createdAt, updatedAt }` |
+| `400`  | `{ error: "..." }`                                                             |
+| `422`  | `{ transactionId, orderId, amount, status: 'declined', createdAt, updatedAt }` |
+| `500`  | `{ error: "..." }`                                                             |
 
 ---
 
@@ -261,30 +262,30 @@ Business rule: `amount ≥ 100` → `approved`; `amount < 100` → `declined`.
 
 #### `POST /api/invoices`
 
-| Field | Type | Required | Constraints |
-| --- | --- | --- | --- |
-| `id` | string | no | |
-| `name` | string | **yes** | |
-| `document` | string | **yes** | |
-| `address` | string | **yes** | |
-| `items` | array | **yes** | at least 1 item |
-| `items[].name` | string | **yes** | |
-| `items[].price` | number | **yes** | positive (> 0) |
-| `items[].id` | string | no | |
+| Field           | Type   | Required | Constraints     |
+| --------------- | ------ | -------- | --------------- |
+| `id`            | string | no       |                 |
+| `name`          | string | **yes**  |                 |
+| `document`      | string | **yes**  |                 |
+| `address`       | string | **yes**  |                 |
+| `items`         | array  | **yes**  | at least 1 item |
+| `items[].name`  | string | **yes**  |                 |
+| `items[].price` | number | **yes**  | positive (> 0)  |
+| `items[].id`    | string | no       |                 |
 
-| Status | Body |
-| --- | --- |
-| `201` | `{ id, name, document, address, items: [{id, name, price}], total, createdAt }` |
-| `400` | `{ error: "..." }` |
-| `500` | `{ error: "..." }` |
+| Status | Body                                                                            |
+| ------ | ------------------------------------------------------------------------------- |
+| `201`  | `{ id, name, document, address, items: [{id, name, price}], total, createdAt }` |
+| `400`  | `{ error: "..." }`                                                              |
+| `500`  | `{ error: "..." }`                                                              |
 
 #### `GET /api/invoices/:id`
 
-| Status | Body |
-| --- | --- |
-| `200` | `{ id, name, document, address, items: [{id, name, price}], total, createdAt }` |
-| `404` | `{ error: "Invoice not found" }` |
-| `500` | `{ error: "..." }` |
+| Status | Body                                                                            |
+| ------ | ------------------------------------------------------------------------------- |
+| `200`  | `{ id, name, document, address, items: [{id, name, price}], total, createdAt }` |
+| `404`  | `{ error: "Invoice not found" }`                                                |
+| `500`  | `{ error: "..." }`                                                              |
 
 ---
 
@@ -294,19 +295,19 @@ Orchestrates all modules in a single transactional flow.
 
 #### `POST /api/checkout`
 
-| Field | Type | Required | Constraints |
-| --- | --- | --- | --- |
-| `clientId` | string | **yes** | client must exist |
-| `products` | array | **yes** | at least 1 item |
-| `products[].productId` | string | **yes** | product must have stock |
+| Field                  | Type   | Required | Constraints             |
+| ---------------------- | ------ | -------- | ----------------------- |
+| `clientId`             | string | **yes**  | client must exist       |
+| `products`             | array  | **yes**  | at least 1 item         |
+| `products[].productId` | string | **yes**  | product must have stock |
 
-| Status | Condition | Body |
-| --- | --- | --- |
-| `200` | Payment approved (total ≥ 100) | `{ id, invoiceId, transactionId, status: 'approved', total, products }` |
-| `400` | Input validation failed | `{ error: "..." }` |
-| `422` | Payment declined (total < 100) | `{ id, invoiceId: null, transactionId, status: 'declined', total, products }` |
-| `422` | Client not found / out of stock | `{ error: "..." }` |
-| `500` | Internal error | `{ error: "..." }` |
+| Status | Condition                       | Body                                                                          |
+| ------ | ------------------------------- | ----------------------------------------------------------------------------- |
+| `200`  | Payment approved (total ≥ 100)  | `{ id, invoiceId, transactionId, status: 'approved', total, products }`       |
+| `400`  | Input validation failed         | `{ error: "..." }`                                                            |
+| `422`  | Payment declined (total < 100)  | `{ id, invoiceId: null, transactionId, status: 'declined', total, products }` |
+| `422`  | Client not found / out of stock | `{ error: "..." }`                                                            |
+| `500`  | Internal error                  | `{ error: "..." }`                                                            |
 
 > **Note:** `invoiceId` is `null` for declined orders — invoices are only generated for approved payments.
 
@@ -316,12 +317,12 @@ Orchestrates all modules in a single transactional flow.
 
 ### Suites
 
-| Type | Suites | Tests |
-| --- | --- | --- |
-| Unit (domain, usecase) | 9 | — |
-| Integration (repository, facade) | 9 | — |
-| E2E (routes with SQLite) | 6 | — |
-| **Total** | **24** | **160** |
+| Type                             | Suites | Tests   |
+| -------------------------------- | ------ | ------- |
+| Unit (domain, usecase)           | 9      | —       |
+| Integration (repository, facade) | 9      | —       |
+| E2E (routes with SQLite)         | 6      | —       |
+| **Total**                        | **24** | **160** |
 
 ### Running tests
 
@@ -338,14 +339,14 @@ npm run test:coverage
 
 ### Coverage thresholds (jest.config.ts)
 
-| Scope | Statements | Branches | Functions | Lines |
-| --- | --- | --- | --- | --- |
-| Global | 95% | 85% | 90% | 95% |
-| `domain/*.entity.ts` | 95% | 90% | 90% | 95% |
-| `usecase/**/*.usecase.ts` | 100% | 100% | 100% | 100% |
-| `repository/*.repository.ts` | 95% | 80% | 100% | 95% |
-| `facade/*.facade.ts` | 100% | 100% | 100% | 100% |
-| `factory/*.factory.ts` | 100% | 100% | 100% | 100% |
+| Scope                        | Statements | Branches | Functions | Lines |
+| ---------------------------- | ---------- | -------- | --------- | ----- |
+| Global                       | 95%        | 85%      | 90%       | 95%   |
+| `domain/*.entity.ts`         | 95%        | 90%      | 90%       | 95%   |
+| `usecase/**/*.usecase.ts`    | 100%       | 100%     | 100%      | 100%  |
+| `repository/*.repository.ts` | 95%        | 80%      | 100%      | 95%   |
+| `facade/*.facade.ts`         | 100%       | 100%     | 100%      | 100%  |
+| `factory/*.factory.ts`       | 100%       | 100%     | 100%      | 100%  |
 
 ## 🔍 Code Quality
 
@@ -369,11 +370,11 @@ npm run docker:logs  # Stream logs in real time
 
 ### Services
 
-| Service | Image | Port |
-| --- | --- | --- |
+| Service    | Image              | Port |
+| ---------- | ------------------ | ---- |
 | PostgreSQL | postgres:16-alpine | 5432 |
-| PgAdmin 4 | dpage/pgadmin4 | 8080 |
-| Redis | redis:7-alpine | 6379 |
+| PgAdmin 4  | dpage/pgadmin4     | 8080 |
+| Redis      | redis:7-alpine     | 6379 |
 
 ## 🌍 Environment Variables
 
